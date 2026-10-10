@@ -1,0 +1,14 @@
+.c-detalle-moneda{
+    padding: 20px;
+    text-align: center;
+}
+
+.c-detalle-moneda img{
+    object-fit: contain;
+    margin: 15px 0;
+}
+
+.c-detalle-moneda button{
+    padding: 8px 12px;
+    cursor: pointer;
+}

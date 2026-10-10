@@ -1,11 +1,10 @@
-import { BrowserRouter as Router, Route, Routes, Navigate,Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 
 import Inicio from "./components/inicio";
 import Favoritos from "./components/favoritos";
 import Info from "./components/info";
-import Coleccion from "./components/coleccion"
 import Usuario from "./components/usuario"
-import Pokemon from "./components/pokemon"
+import Moneda from "./components/moneda"
 import './App.css'
 
 function App() {
@@ -15,7 +14,6 @@ function App() {
       <Router>
         <nav className='c-menu'>
           <Link to="/">Inicio</Link>
-          <Link to="/coleccion">Coleccion</Link>
           <Link to="/favoritos">Favoritos</Link>
           <Link to="/info">Info</Link>
           <Link to="/usuario">Usuario</Link>
@@ -23,10 +21,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Inicio />} />
           <Route path="/favoritos" element={<Favoritos />} />
-          <Route path="/coleccion" element={<Coleccion />} />
           <Route path="/info" element={<Info />} />
           <Route path="/usuario" element={<Usuario />} />
-          <Route path="/pokemon/:name" element={<Pokemon />} />
+          <Route path="/moneda/:id" element={<Moneda />} />
         </Routes>
       </Router>
     </>
