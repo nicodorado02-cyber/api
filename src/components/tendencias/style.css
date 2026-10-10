@@ -1,0 +1,20 @@
+.c-tendencias{
+    padding: 20px;
+}
+
+.c-tendencias h1{
+    margin-bottom: 12px;
+}
+
+.c-tendencias .c-lista-moneda{
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.c-tendencias .c-lista-moneda img{
+    display: block;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin: 8px auto;
+}

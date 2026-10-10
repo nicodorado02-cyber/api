@@ -1,0 +1,9 @@
+.c-usuario{
+    padding: 20px;
+}
+
+.c-usuario button{
+    margin-top: 12px;
+    padding: 8px 12px;
+    cursor: pointer;
+}

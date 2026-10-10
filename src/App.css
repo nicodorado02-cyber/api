@@ -20,3 +20,34 @@ section{
     width: 100%;
     padding: 15px;
 }
+
+@media (max-width: 600px){
+    body{
+        padding-bottom: 68px;
+    }
+
+    .c-menu{
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        gap: 0;
+        padding: 10px 4px;
+    }
+
+    .c-menu a{
+        flex: 1 1 0;
+        min-width: 0;
+        text-align: center;
+        white-space: nowrap;
+        font-size: 12px;
+    }
+
+    .c-lista{
+        gap: 8px;
+    }
+
+    .c-lista-moneda{
+        width: calc(50% - 4px);
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+}

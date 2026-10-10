@@ -5,6 +5,7 @@ import Favoritos from "./components/favoritos";
 import Info from "./components/info";
 import Usuario from "./components/usuario"
 import Moneda from "./components/moneda"
+import Tendencias from "./components/tendencias"
 import './App.css'
 
 function App() {
@@ -14,12 +15,14 @@ function App() {
       <Router>
         <nav className='c-menu'>
           <Link to="/">Inicio</Link>
+          <Link to="/tendencias">Tendencias</Link>
           <Link to="/favoritos">Favoritos</Link>
           <Link to="/info">Info</Link>
           <Link to="/usuario">Usuario</Link>
         </nav>
         <Routes>
           <Route path="/" element={<Inicio />} />
+          <Route path="/tendencias" element={<Tendencias />} />
           <Route path="/favoritos" element={<Favoritos />} />
           <Route path="/info" element={<Info />} />
           <Route path="/usuario" element={<Usuario />} />

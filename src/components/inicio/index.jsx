@@ -1,17 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useFavoritos } from '../../context/FavoritosContext.jsx'
 import './style.css'
 
 function Inicio() {
   const [monedas, setMonedas] = useState([])
   const [busqueda, setBusqueda] = useState('')
   const [busquedaFiltrada, setBusquedaFiltrada] = useState('')
+  const [letraInicial, setLetraInicial] = useState('')
+  const [soloFavoritos, setSoloFavoritos] = useState(false)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
   const [imagenes, setImagenes] = useState({})
   const [errorImagenes, setErrorImagenes] = useState('')
   const imagenesSolicitadas = useRef(new Set())
   const navigate = useNavigate()
+  const { favoritos, esFavorito, toggleFavorito } = useFavoritos()
 
   useEffect(() => {
     // Se actualiza la búsqueda cuando el usuario deja de escribir medio segundo.
@@ -66,12 +70,16 @@ function Inicio() {
     cargarMonedas()
   }, [])
 
-  // Se filtra por nombre desde tres caracteres y solo se muestran 50 resultados.
+  // Se combinan la búsqueda y los filtros antes de limitar los resultados.
   const textoBusqueda = busquedaFiltrada.trim().toLowerCase()
-  const monedasVisibles = (textoBusqueda.length >= 3
+  const monedasFiltradas = (textoBusqueda.length >= 3
     ? monedas.filter((moneda) => moneda.name.toLowerCase().includes(textoBusqueda))
     : monedas
-  ).slice(0, 50)
+  ).filter((moneda) => (
+    (!letraInicial || moneda.name.toUpperCase().startsWith(letraInicial)) &&
+    (!soloFavoritos || favoritos.some((favorito) => favorito.id === moneda.id))
+  ))
+  const monedasVisibles = monedasFiltradas.slice(0, 50)
   const idsMonedasVisibles = monedasVisibles.map((moneda) => moneda.id).join(',')
 
   useEffect(() => {
@@ -130,6 +138,26 @@ function Inicio() {
         className="c-buscador"
       />
 
+      <div className="c-filtros">
+        <label>
+          Letra inicial
+          <select value={letraInicial} onChange={(evento) => setLetraInicial(evento.target.value)}>
+            <option value="">Todas</option>
+            {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letra) => (
+              <option key={letra} value={letra}>{letra}</option>
+            ))}
+          </select>
+        </label>
+        <label className="c-filtro-favoritos">
+          <input
+            type="checkbox"
+            checked={soloFavoritos}
+            onChange={(evento) => setSoloFavoritos(evento.target.checked)}
+          />
+          Solo favoritos
+        </label>
+      </div>
+
       {errorImagenes && <p className="c-error-imagenes">{errorImagenes}</p>}
 
       {monedasVisibles.length === 0 ? (
@@ -144,6 +172,16 @@ function Inicio() {
             >
               <p>{moneda.id}</p>
               <p>Símbolo: {moneda.symbol}</p>
+              <button
+                type="button"
+                aria-label={esFavorito(moneda.id) ? `Quitar ${moneda.name} de favoritos` : `Agregar ${moneda.name} a favoritos`}
+                onClick={(evento) => {
+                  evento.stopPropagation()
+                  toggleFavorito({ id: moneda.id, nombre: moneda.name })
+                }}
+              >
+                {esFavorito(moneda.id) ? '❤️' : '🤍'}
+              </button>
               {imagenes[moneda.id] ? (
                 <img
                   src={imagenes[moneda.id]}

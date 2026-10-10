@@ -1,25 +1,24 @@
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { useFavoritos } from '../../context/FavoritosContext.jsx'
 import './style.css'
 
 function Moneda() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [moneda, setMoneda] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
-  const [favoritos, setFavoritos] = useState(() => {
-    try {
-      // Se recuperan los favoritos guardados en el navegador.
-      const guardados = JSON.parse(localStorage.getItem('favoritos') || '[]')
-      return Array.isArray(guardados) ? guardados : []
-    } catch {
-      return []
-    }
-  })
-
-  const esFavorito = moneda ? favoritos.some((favorito) => favorito.id === moneda.id) : false
+  const [mensajeCompartir, setMensajeCompartir] = useState('')
+  const { esFavorito, toggleFavorito } = useFavoritos()
+  const precio = moneda?.market_data?.current_price?.usd
 
   useEffect(() => {
+    setCargando(true)
+    setError('')
+    setMoneda(null)
+    setMensajeCompartir('')
+
     const cargarMoneda = async () => {
       try {
         // El id de la URL permite consultar el detalle de una moneda.
@@ -41,28 +40,54 @@ function Moneda() {
     cargarMoneda()
   }, [id])
 
-  const toggleFavorito = () => {
-    // Se agrega o quita la moneda y se actualiza el almacenamiento local.
-    const nuevosFavoritos = esFavorito
-      ? favoritos.filter((favorito) => favorito.id !== moneda.id)
-      : [...favoritos, { id: moneda.id, nombre: moneda.name }]
+  const compartirMoneda = async () => {
+    setMensajeCompartir('')
+    const precioTexto = precio === undefined || precio === null
+      ? 'No disponible'
+      : precio.toLocaleString('es-CO', { style: 'currency', currency: 'USD' })
+    const url = window.location.href
 
     try {
-      localStorage.setItem('favoritos', JSON.stringify(nuevosFavoritos))
-      setFavoritos(nuevosFavoritos)
+      if (typeof navigator.share === 'function') {
+        await navigator.share({
+          title: moneda.name,
+          text: `${moneda.name}: precio actual en USD ${precioTexto}`,
+          url
+        })
+        setMensajeCompartir('Moneda compartida.')
+      } else if (typeof navigator.clipboard?.writeText === 'function') {
+        await navigator.clipboard.writeText(url)
+        setMensajeCompartir('Enlace copiado al portapapeles.')
+      } else {
+        throw new Error('Este navegador no permite compartir ni copiar el enlace.')
+      }
     } catch (error) {
-      console.error('Error:', error)
+      if (error.name !== 'AbortError') {
+        console.error('No se pudo compartir la moneda:', error)
+        setMensajeCompartir(error.message || 'No se pudo compartir la moneda.')
+      }
     }
   }
 
-  if (cargando) return <p>Cargando...</p>
-  if (error) return <p>{error}</p>
-  if (!moneda) return <p>No se encontró la moneda.</p>
+  const botonVolver = (
+    <button type="button" onClick={() => navigate(-1)}>Volver</button>
+  )
 
-  const precio = moneda.market_data?.current_price?.usd
+  if (cargando) {
+    return <main className="c-detalle-moneda">{botonVolver}<p>Cargando...</p></main>
+  }
+  if (error) {
+    return <main className="c-detalle-moneda">{botonVolver}<p>{error}</p></main>
+  }
+  if (!moneda) {
+    return <main className="c-detalle-moneda">{botonVolver}<p>No se encontró la moneda.</p></main>
+  }
+
+  const esFavoritoActual = esFavorito(moneda.id)
 
   return (
     <main className="c-detalle-moneda">
+      {botonVolver}
       <h1>{moneda.name}</h1>
       <p>Símbolo: {moneda.symbol?.toUpperCase()}</p>
       {moneda.image?.large && (
@@ -73,9 +98,15 @@ function Moneda() {
           ? 'No disponible'
           : precio.toLocaleString('es-CO', { style: 'currency', currency: 'USD' })}
       </p>
-      <button type="button" onClick={toggleFavorito} aria-label="Cambiar favorito">
-        {esFavorito ? '❤️' : '🤍'}
+      <button
+        type="button"
+        onClick={() => toggleFavorito({ id: moneda.id, nombre: moneda.name })}
+        aria-label={esFavoritoActual ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+      >
+        {esFavoritoActual ? '❤️' : '🤍'}
       </button>
+      <button type="button" onClick={compartirMoneda}>Compartir</button>
+      {mensajeCompartir && <p role="status">{mensajeCompartir}</p>}
     </main>
   )
 }

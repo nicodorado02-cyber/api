@@ -1,17 +1,10 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useFavoritos } from '../../context/FavoritosContext.jsx'
 import './style.css'
 
 function Favoritos() {
   const navigate = useNavigate();
-  const [favoritos] = useState(() => {
-    try {
-      const guardados = JSON.parse(localStorage.getItem('favoritos') || '[]');
-      return Array.isArray(guardados) ? guardados : [];
-    } catch {
-      return [];
-    }
-  });
+  const { favoritos } = useFavoritos()
 
   return (
     <>
