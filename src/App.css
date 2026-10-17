@@ -13,24 +13,26 @@ section{
     position: fixed;
     bottom: 0;
     left: 0;
+    z-index: 1000;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 10px;
     width: 100%;
     padding: 15px;
+    border-top: 1px solid #a9a9a9;
 }
 
 @media (max-width: 600px){
     body{
-        padding-bottom: 68px;
+        padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
     }
 
     .c-menu{
         flex-wrap: nowrap;
         justify-content: space-between;
         gap: 0;
-        padding: 10px 4px;
+        padding: 10px 4px calc(10px + env(safe-area-inset-bottom, 0px));
     }
 
     .c-menu a{
